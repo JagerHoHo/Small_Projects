@@ -37,10 +37,7 @@ class Snake:
         yield from self.body
 
     def __contains__(self, pos):
-        for node in self:
-            if node == pos:
-                return True
-        return False
+        return any(node == pos for node in self)
 
     def move(self):
         self.body.appendleft(deepcopy(self.head))
@@ -76,12 +73,15 @@ class Board:
         self.WIDTH = self.SNAKE_SIZE * self.BOX_PER_ROW
         self.HEIGHT = self.SNAKE_SIZE * self.BOX_PER_COL
         self.WINDOW = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
-        self.snake = Snake(pygame.Vector2((self.BOX_PER_ROW - 1) // 2, (self.BOX_PER_COL - 1) // 2))
+        self.snake = Snake(
+            pygame.Vector2((self.BOX_PER_ROW - 1) // 2,
+                           (self.BOX_PER_COL - 1) // 2))
         self.food_pos = self.new_food_pos()
         self.score = 0
 
     def new_food_pos(self) -> pygame.Vector2:
-        new_pos = pygame.Vector2(randint(0, self.BOX_PER_ROW - 1), randint(0, self.BOX_PER_COL - 1))
+        new_pos = pygame.Vector2(randint(0, self.BOX_PER_ROW - 1),
+                                 randint(0, self.BOX_PER_COL - 1))
         if (new_pos not in self.snake):
             return new_pos
         return self.new_food_pos()
@@ -100,7 +100,8 @@ class Board:
         for x in range(0, self.WIDTH, self.SNAKE_SIZE):
             for y in range(0, self.HEIGHT, self.SNAKE_SIZE):
                 color = self.get_color(x, y).value
-                pygame.draw.rect(self.WINDOW, color, (x, y, self.SNAKE_SIZE, self.SNAKE_SIZE), 0)
+                pygame.draw.rect(self.WINDOW, color,
+                                 (x, y, self.SNAKE_SIZE, self.SNAKE_SIZE), 0)
         pygame.display.update()
 
     @staticmethod
@@ -117,26 +118,35 @@ class Board:
     def get_direction(self):
         key_pressed = pygame.key.get_pressed()
         input_direction = self.direction_of(key_pressed)
-        if input_direction and input_direction != self.snake.direction.reverse():
+        if input_direction and input_direction != self.snake.direction.reverse(
+        ):
             self.snake.direction = input_direction
 
     def show_gameover(self):
         center_x = lambda msg: self.WIDTH // 2 - msg.get_rect().width // 2
         font = pygame.font.SysFont("Arial", 30)
         gameover_msg = font.render("Game Over!", True, color.RED.value)
-        score_msg = font.render("Score: " + str(self.score), True, color.RED.value)
+        score_msg = font.render("Score: " + str(self.score), True,
+                                color.RED.value)
         self.WINDOW.fill(color.BLACK.value)
         self.WINDOW.blit(gameover_msg, (center_x(gameover_msg), 0))
-        self.WINDOW.blit(score_msg, (center_x(score_msg), gameover_msg.get_rect().height))
+        self.WINDOW.blit(score_msg,
+                         (center_x(score_msg), gameover_msg.get_rect().height))
         for counter in range(10, 0, -1):
             pygame.event.get()
-            counter_msg = font.render("Exiting in " + str(counter), True, color.RED.value)
-            self.WINDOW.blit(counter_msg, (center_x(counter_msg), gameover_msg.get_rect().height + counter_msg.get_rect().height))
+            counter_msg = font.render("Exiting in " + str(counter), True,
+                                      color.RED.value)
+            self.WINDOW.blit(
+                counter_msg,
+                (center_x(counter_msg), gameover_msg.get_rect().height +
+                 counter_msg.get_rect().height))
             pygame.display.update()
             pygame.time.wait(1000)
-            self.WINDOW.fill(color.BLACK.value,
-                             (center_x(counter_msg), gameover_msg.get_rect().height + counter_msg.get_rect().height,
-                              center_x(counter_msg) + counter_msg.get_rect().width, self.HEIGHT))
+            self.WINDOW.fill(
+                color.BLACK.value,
+                (center_x(counter_msg), gameover_msg.get_rect().height +
+                 counter_msg.get_rect().height, center_x(counter_msg) +
+                 counter_msg.get_rect().width, self.HEIGHT))
 
     def run(self):
         clock = pygame.time.Clock()
@@ -160,7 +170,8 @@ class Board:
                 self.snake.body.pop()
 
             border = pygame.Vector2(self.BOX_PER_ROW, self.BOX_PER_COL)
-            if (self.snake.reach_the_border(border) or self.snake.clash_into_self()):
+            if (self.snake.reach_the_border(border) or
+                    self.snake.clash_into_self()):
                 run = False
 
             self.draw_board()
