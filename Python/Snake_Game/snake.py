@@ -82,9 +82,7 @@ class Board:
     def new_food_pos(self) -> pygame.Vector2:
         new_pos = pygame.Vector2(randint(0, self.BOX_PER_ROW - 1),
                                  randint(0, self.BOX_PER_COL - 1))
-        if (new_pos not in self.snake):
-            return new_pos
-        return self.new_food_pos()
+        return new_pos if (new_pos not in self.snake) else self.new_food_pos()
 
     def get_color(self, x: int, y: int) -> color:
         pos = pygame.Vector2(x // self.SNAKE_SIZE, y // self.SNAKE_SIZE)
@@ -92,9 +90,7 @@ class Board:
             return color.RED
         if pos in self.snake.body:
             return color.GREEN
-        if pos == self.food_pos:
-            return color.BLUE
-        return color.WHITE
+        return color.BLUE if pos == self.food_pos else color.WHITE
 
     def draw_board(self):
         for x in range(0, self.WIDTH, self.SNAKE_SIZE):
@@ -126,16 +122,14 @@ class Board:
         center_x = lambda msg: self.WIDTH // 2 - msg.get_rect().width // 2
         font = pygame.font.SysFont("Arial", 30)
         gameover_msg = font.render("Game Over!", True, color.RED.value)
-        score_msg = font.render("Score: " + str(self.score), True,
-                                color.RED.value)
+        score_msg = font.render(f"Score: {str(self.score)}", True, color.RED.value)
         self.WINDOW.fill(color.BLACK.value)
         self.WINDOW.blit(gameover_msg, (center_x(gameover_msg), 0))
         self.WINDOW.blit(score_msg,
                          (center_x(score_msg), gameover_msg.get_rect().height))
         for counter in range(10, 0, -1):
             pygame.event.get()
-            counter_msg = font.render("Exiting in " + str(counter), True,
-                                      color.RED.value)
+            counter_msg = font.render(f"Exiting in {str(counter)}", True, color.RED.value)
             self.WINDOW.blit(
                 counter_msg,
                 (center_x(counter_msg), gameover_msg.get_rect().height +
